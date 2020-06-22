@@ -1,5 +1,5 @@
 
-TOP=../..
+TOP=.
 
 LAUNCH=env TOP=$(TOP) $(TOP)/tools/LAUNCH
 OCAMLFIND=$(LAUNCH) ocamlfind
