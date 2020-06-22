@@ -1,0 +1,135 @@
+#use "../../local-install/lib/ocaml/topfind.camlp5";;
+#require "compiler-libs.common" ;;
+#require "ounit2";;
+#require "fmt";;
+#require "rresult";;
+#require "str";;
+#require "pcre";;
+#require "bos";;
+
+
+#require "camlp5.pa_op";;
+Pcaml.inter_phrases := Some ";;\n";;
+(*
+#require "camlp5.pa_r";;
+Pcaml.inter_phrases := Some ";\n";;
+*)
+(*
+#require "camlp5.pr_o";;
+*)
+#require "camlp5.pr_r";;
+
+(*
+#require "camlp5.pr_r";;
+Pcaml.inter_phrases := Some ";\n";;
+*)
+
+#require "camlp5.quotations";;
+#require "camlp5.extfun";;
+(*
+#require "camlp5.extend";;
+#require "camlp5.phony_quotations" ;;
+*)
+
+#directory "../../main";;
+Exparser.optim := false ;;
+
+#directory "../../testsuite";;
+#load "testutil.cmo";;
+#load "testutil2.cmo";;
+
+open OUnit2 ;;
+open Testutil ;;
+open Testutil2 ;;
+
+#load "roundtrip_lexer.cmo";;
+open Roundtrip_lexer ;;
+
+let pp_plexing_lexbuf b = Fmt.(pf stdout "<<%s>>" (Plexing.Lexbuf.get b)) ;;
+#install_printer pp_plexing_lexbuf ;;
+
+(*
+#load "papr_matrix_test.cmo" ;;
+#load "r2r_test.cmo" ;;
+*)
+
+let pp_loc (loc : Location.t) = Format.print_string "<loc>" ;;
+#install_printer pp_loc ;;
+
+let nonws_re = Str.regexp "[^ \t\n]"
+let not_ws s = match Str.search_forward nonws_re s 0 with _ -> true | exception Not_found -> false ;;
+
+type ploc_verbosity = TERSE | COMMENT | LOCATION ;;
+
+let verbose_ploc = ref TERSE ;;
+let terse_pp_ploc (ploc : Ploc.t) =
+  Format.print_string "<loc>"
+;;
+let comment_pp_ploc (ploc : Ploc.t) =
+  let cs = Ploc.comment ploc in
+  if not_ws cs then Format.printf "<loc \"%s\">" (String.escaped cs)
+  else Format.print_string "<loc>"
+;;
+let verbose_pp_ploc (loc : Ploc.t) =
+  let file_name = Ploc.file_name loc in
+  let line_nb = Ploc.line_nb loc in
+  let bol_pos = Ploc.bol_pos loc in
+  let first_pos = Ploc.first_pos loc in
+  let last_pos = Ploc.last_pos loc in
+  let cs = Ploc.comment loc in
+  if not_ws cs then
+    Fmt.(pf stdout "<loc<\"%s\":%d (bol %d) %d-%d \"%s\">>"
+           file_name line_nb bol_pos first_pos last_pos (String.escaped cs))
+  else
+    Fmt.(pf stdout "<loc<\"%s\":%d (bol %d) %d-%d>>"
+           file_name line_nb bol_pos first_pos last_pos)
+;;
+let pp_ploc loc = match !verbose_ploc with 
+    TERSE -> terse_pp_ploc loc
+  | COMMENT -> comment_pp_ploc loc
+  | LOCATION -> verbose_pp_ploc loc
+;;
+#install_printer pp_ploc;;
+
+let pp_char_stream strm =
+  let l = Stream.npeek !Toploop.max_printer_depth strm in
+  Fmt.(pf stdout "<strm<[%a]>>" (list char) l)
+;;
+#install_printer pp_char_stream ;;
+
+let pp_token_stream strm =
+  let l = Stream.npeek !Toploop.max_printer_depth strm in
+  let rec trim_eoi = function
+    ("EOI",_ as x)::_ -> [x]
+  | h::t -> h::(trim_eoi t)
+  | [] -> []
+  in 
+  Fmt.(pf stdout "<strm<[%a]>>" (list ~sep:comma (parens (pair ~sep:comma (quote string) (quote string)))) (trim_eoi l))
+;;
+#install_printer pp_token_stream ;;
+
+let lexbuf_contents lb =
+  let open Lexing in
+  let pos = lb.lex_curr_pos in
+  let len = lb.lex_buffer_len - lb.lex_curr_pos in
+  (Bytes.to_string (Bytes.sub lb.lex_buffer pos len))
+;;
+
+let pp_lexbuf lb =
+  Format.print_string "#<lexbuf:<";
+  Format.print_string (lexbuf_contents lb);
+  Format.print_string ">>"
+;;
+#install_printer pp_lexbuf ;;
+
+print_string "================ START ================\n";; flush stdout ;;
+
+#load "clexer.cmo";;
+#load "pb0.cmo";;
+
+(*
+;;; Local Variables: ***
+;;; mode:tuareg ***
+;;; End: ***
+
+*)

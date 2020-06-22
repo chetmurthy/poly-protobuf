@@ -1,0 +1,45 @@
+#!/bin/bash
+
+./pb0 <<EOF
+;
+syntax = "proto2";
+import weak "foo";
+import public "foo";
+package a.b.c.d;
+package e;
+option java_package = "com.example.foo";
+  option allow_alias = true;
+  option (my_option).a = true;
+message a { required int n = 2 ; }
+message b { optional .Foo.Bar m = 1 [ a = 5, (c) = "foo" ] ; }
+message c {
+repeated group Result = 1 {
+    required string url = 2;
+    optional string title = 3;
+    repeated string snippets = 4;
+}
+oneof foo {
+    string name = 4;
+    SubMessage sub_message = 9;
+}
+map<string, Project> projects = 3;
+extensions 2 to 3, 5, 4 to max ;
+reserved 2, 15, 9 to 11;
+reserved foo, bar;
+}
+enum EnumAllowingAlias {
+  option allow_alias = true;
+  UNKNOWN = 0;
+  STARTED = 1;
+  RUNNING = 2 [(custom_option) = "hello world"];
+}
+
+message Outer {
+  option (my_option).a = true;
+  message Inner {   // Level 2
+    required int64 ival = 1;
+  }
+  map<int32, string> my_map = 2;
+  extensions 20 to 30;
+}
+EOF
