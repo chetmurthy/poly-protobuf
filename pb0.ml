@@ -59,7 +59,7 @@ and message_member_t = [
 | MM_FIELD of Ploc.t and message_field_t
 | MM_GROUP of Ploc.t and group_t
 | MM_ONEOF of Ploc.t and string and list oneof_member_t
-| MM_MAP of Ploc.t and type_t and type_t and string and int and list (option_name_t * constant_t)
+| MM_MAP of Ploc.t and map_t
 | MM_EXTENSIONS of Ploc.t and list range_t
 | MM_RESERVED of Ploc.t and choice (list range_t) (list string)
 | MM_MESSAGE of Ploc.t and string and list message_member_t
@@ -83,6 +83,7 @@ and extend_member_t = [
 | EX_GROUP of Ploc.t and group_t
 | EX_FIELD of Ploc.t and message_field_t
 ]
+and map_t = { map_dom : type_t; map_rng : type_t ; map_name: string ; map_num : int ; map_options : list (option_name_t * constant_t) }
 ;
 
 type stmt = [
@@ -103,7 +104,7 @@ value loc_of_member = fun [
 | MM_FIELD loc _ -> loc
 | MM_GROUP loc _ -> loc
 | MM_ONEOF loc _ _ -> loc
-| MM_MAP loc _ _ _ _ _ -> loc
+| MM_MAP loc _ -> loc
 | MM_EXTENSIONS loc _ -> loc
 | MM_RESERVED loc _ -> loc
 | MM_MESSAGE loc _ _ -> loc
@@ -210,7 +211,7 @@ EXTEND
     | "oneof" ; n = ident ; "{" ; l = LIST1 oneof_member ; "}" ->
       MM_ONEOF loc n l
     | "map" ; "<" ; keyty = keytyp ; "," ; valty = typ ; ">" ; n = ident ; "=" ; num = int ; opts = options ; ";" ->
-      MM_MAP loc keyty valty n num opts
+      MM_MAP loc { map_dom = keyty ; map_rng = valty ; map_name = n ; map_num = num ; map_options = opts }
     | "extensions" ; l = LIST1 range SEP "," ; ";" ->
       MM_EXTENSIONS loc l
     | "reserved" ; l = LIST1 range SEP "," ; ";" -> MM_RESERVED loc (Left l)
@@ -465,8 +466,9 @@ EXTEND_PRINTER
           (plined print_commented_member) g.group_body
       | MM_ONEOF _ n l ->
         pprintf pc "oneof %s @[<2>{\n%p\n}@]" n (plined print_commented_oneof_member) l
-      | MM_MAP _ keyty valty n num opts ->
-        pprintf pc "map<%p,%p>%s = %d%p;" typ keyty typ valty n num options opts
+      | MM_MAP _ m ->
+        pprintf pc "map<%p,%p>%s = %d%p;" typ m.map_dom typ m.map_rng m.map_name
+          m.map_num options m.map_options
       | MM_EXTENSIONS _ l ->
          pprintf pc "extensions %p;" (plined pp_range) l
       | MM_RESERVED _ (Left l) -> pprintf pc "reserved %p;" (plined pp_range) l
