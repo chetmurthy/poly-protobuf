@@ -11,8 +11,10 @@ message Person {
     optional TelNumber  tel_number    = 4;  
 
     oneof Employment {
-        int32  self_employed = 5; // value is unused  
-        string employed_by   = 6; // value is company name
+// value is unused  
+        int32  self_employed = 5; 
+// value is company name
+        string employed_by   = 6; 
     }
     enum MaritalStatus {
         Single = 1; 

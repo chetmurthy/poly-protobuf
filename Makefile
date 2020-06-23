@@ -35,6 +35,34 @@ test: pb0
 	./test1 tests/testdata/google_unittest/unittest_import.proto
 	./test1 tests/testdata/google_unittest/unittest_original.proto
 	./test1 tests/testdata/google_unittest/unittest.proto
+	./test1 tests/testdata/integration-tests/test01.proto
+	./test1 tests/testdata/integration-tests/test02.proto
+#	./test1 tests/testdata/integration-tests/test03.proto
+	./test1 tests/testdata/integration-tests/test04.proto
+	./test1 tests/testdata/integration-tests/test05.proto
+	./test1 tests/testdata/integration-tests/test06.proto
+	./test1 tests/testdata/integration-tests/test07.proto
+	./test1 tests/testdata/integration-tests/test08.proto
+	./test1 tests/testdata/integration-tests/test08.proto
+	./test1 tests/testdata/integration-tests/test10.proto
+	./test1 tests/testdata/integration-tests/test11.proto
+	./test1 tests/testdata/integration-tests/test12.proto
+	./test1 tests/testdata/integration-tests/test13.proto
+	./test1 tests/testdata/integration-tests/test14.proto
+	./test1 tests/testdata/integration-tests/test15.proto
+	./test1 tests/testdata/integration-tests/test16.proto
+	./test1 tests/testdata/integration-tests/test17.proto
+	./test1 tests/testdata/integration-tests/test18.proto
+	./test1 tests/testdata/integration-tests/test18.proto
+	./test1 tests/testdata/integration-tests/test20.proto
+	./test1 tests/testdata/integration-tests/test21.proto
+#	./test1 tests/testdata/integration-tests/test22.proto
+	./test1 tests/testdata/integration-tests/test23.proto
+	./test1 tests/testdata/integration-tests/test24.proto
+	./test1 tests/testdata/integration-tests/test25.proto
+#	./test1 tests/testdata/integration-tests/test26.proto
+#	./test1 tests/testdata/integration-tests/test27.proto
+#	./test1 tests/testdata/yojson/yojson_unittest.proto
 
 clean:
 	rm -f pb0 pb0.opt *.cm* *.o *.ppo.ml

@@ -1,10 +1,10 @@
 
 message Empty {
+
 }
 
 message ContainsEmpty {
  required Empty empty = 1; 
-
  oneof Sub {
      Empty sub_empty = 2; 
      int32 sub_int   = 3;

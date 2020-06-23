@@ -330,10 +330,10 @@ message TestRequired {
   required int32 b = 3;
 
   // NOT SUPPORTED
-  // extend TestAllExtensions {
-  //   optional TestRequired single = 1000;
-  //   repeated TestRequired multi  = 1001;
-  // }
+  extend TestAllExtensions {
+    optional TestRequired single = 1000;
+    repeated TestRequired multi  = 1001;
+  }
 
   // Pad the field count to 32 so that we can test that IsInitialized()
   // properly checks multiple elements of has_bits_.
@@ -424,11 +424,19 @@ message TestMutualRecursionB {
 // parents.  This is NOT possible in proto1; only proto2.  When attempting
 // to compile with proto1, this will emit an error; so we only include it
 // in protobuf_unittest_proto.
-message TestDupFieldNumber {                        // NO_PROTO1
-  optional int32 a = 1;                             // NO_PROTO1
-  // optional group Foo = 2 { optional int32 a = 1; }  // NO_PROTO1
-  // optional group Bar = 3 { optional int32 a = 1; }  // NO_PROTO1
-}                                                   // NO_PROTO1
+message TestDupFieldNumber {
+                        // NO_PROTO1
+  optional int32 a = 1;
+                             // NO_PROTO1
+  optional group Foo = 2 {
+ optional int32 a = 1;
+ }
+  // NO_PROTO1
+  optional group Bar = 3 {
+ optional int32 a = 1;
+ }
+}
+                                                   // NO_PROTO1
 
 // Additional messages for testing lazy fields.
 message TestEagerMessage {
@@ -605,11 +613,6 @@ message TestOneof {
     int32 foo_int = 1;
     string foo_string = 2;
     TestAllTypes foo_message = 3;
-    // NOT SUPPORTED
-    // group FooGroup = 4 {
-    //   optional int32 a = 5;
-    //   optional string b = 6;
-    // }
   }
 }
 
@@ -617,11 +620,6 @@ message TestOneofBackwardsCompatible {
   optional int32 foo_int = 1;
   optional string foo_string = 2;
   optional TestAllTypes foo_message = 3;
-  // NOT SUPPORTED
-  // optional group FooGroup = 4 {
-  //   optional int32 a = 5;
-  //   optional string b = 6;
-  // }
 }
 
 message TestOneof2 {
@@ -644,8 +642,10 @@ message TestOneof2 {
   oneof bar {
     int32 bar_int = 12 [default = 5];
     string bar_string = 13 [default = "STRING"];
-    string bar_cord = 14 [ctype=CORD, default = "CORD"];
-    string bar_string_piece = 15 [ctype=STRING_PIECE, default = "SPIECE"];
+    string bar_cord = 14 [ctype=CORD,
+ default = "CORD"];
+    string bar_string_piece = 15 [ctype=STRING_PIECE,
+ default = "SPIECE"];
     bytes bar_bytes = 16 [default = "BYTES"];
     NestedEnum bar_enum = 17 [default = BAR];
   }
@@ -831,11 +831,6 @@ message TestParsingMerge {
   //   optional TestAllTypes repeated_group_all_types = 21;
   // }
   extensions 1000 to max;
-  // NOT SUPPORTED
-  //extend TestParsingMerge {
-  //  optional TestAllTypes optional_ext = 1000;
-  //  repeated TestAllTypes repeated_ext = 1001;
-  //}
 }
 
 message TestCommentInjectionMessage {
@@ -845,19 +840,25 @@ message TestCommentInjectionMessage {
 
 
 // Test that RPC services work.
-message FooRequest  {}
-message FooResponse {}
+message FooRequest  {
 
-message FooClientMessage {}
-message FooServerMessage{}
+}
+message FooResponse {
 
-// NOT SUPPORTED
-// service TestService {
-//   rpc Foo(FooRequest) returns (FooResponse);
-//   rpc Bar(BarRequest) returns (BarResponse);
-// }
+}
+
+message FooClientMessage {
+
+}
+message FooServerMessage{
+
+}
 
 
-message BarRequest  {}
-message BarResponse {}
+message BarRequest  {
+
+}
+message BarResponse {
+
+}
 

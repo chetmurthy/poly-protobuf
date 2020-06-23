@@ -62,6 +62,7 @@ and message_member_t = [
 | MM_RESERVED of Ploc.t and choice (list range_t) (list string)
 | MM_MESSAGE of Ploc.t and string and list message_member_t
 | MM_ENUM of Ploc.t and string and list enum_member_t
+| MM_EXTEND of Ploc.t and type_name_t and list extend_member_t
 ]
 and oneof_field_t = { of_type : type_t ; of_name : string ; of_num : int ; of_options : list (option_name_t * constant_t) }
 and oneof_member_t = [
@@ -106,6 +107,7 @@ value loc_of_member = fun [
 | MM_RESERVED loc _ -> loc
 | MM_MESSAGE loc _ _ -> loc
 | MM_ENUM loc _ _ -> loc
+| MM_EXTEND loc _ _ -> loc
 ]
 ;
 
@@ -216,6 +218,8 @@ EXTEND
       MM_MESSAGE loc n l
     | "enum" ; n = ident ; "{" ; l = LIST1 enum_member ; "}" ->
       MM_ENUM loc n l
+    | "extend" ; rt = type_name ; "{" ; l = LIST1 extend_member ; "}" ->
+      MM_EXTEND loc rt l
   ] ] ;
   range :
   [ [ n = int -> (n, None)
@@ -439,7 +443,7 @@ EXTEND_PRINTER
           f.mf_name f.mf_num
           options f.mf_options
       | EX_GROUP _ g ->
-        pprintf pc "%s %s = %d @[<2>{\n%p\n}@]"
+        pprintf pc "%s group %s = %d @[<2>{\n%p\n}@]"
           (match g.group_label with [ REQUIRED -> "required" | OPTIONAL -> "optional" | REPEATED -> "repeated"])
           g.group_name g.group_num
           (plined print_commented_member) g.group_body
@@ -454,7 +458,7 @@ EXTEND_PRINTER
           f.mf_name f.mf_num
           options f.mf_options
       | MM_GROUP _ g ->
-        pprintf pc "%s %s = %d @[<2>{\n%p\n}@]"
+        pprintf pc "%s group %s = %d @[<2>{\n%p\n}@]"
           (match g.group_label with [ REQUIRED -> "required" | OPTIONAL -> "optional" | REPEATED -> "repeated"])
           g.group_name g.group_num
           (plined print_commented_member) g.group_body
@@ -470,6 +474,8 @@ EXTEND_PRINTER
           n (plined print_commented_member) l
       | MM_ENUM _ n l -> pprintf pc "enum %s @[<2>{\n%p\n}@]"
           n (plined print_commented_enum_member) l
+      | MM_EXTEND _ n l -> pprintf pc "extend %p@[<2>{\n%p\n}@]"
+          type_name n (plined print_commented_extend_member) l
     ] ] ;
   pr_stmt:
     [ [ ST_EMPTY _ -> pprintf pc ";"
