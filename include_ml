@@ -1,4 +1,4 @@
-#use "../../local-install/lib/ocaml/topfind.camlp5";;
+#use "topfind.camlp5";;
 #require "compiler-libs.common" ;;
 #require "ounit2";;
 #require "fmt";;
@@ -30,11 +30,11 @@ Pcaml.inter_phrases := Some ";\n";;
 #require "camlp5.extend";;
 #require "camlp5.phony_quotations" ;;
 *)
-
+(*
 #directory "../../main";;
 Exparser.optim := false ;;
-
-#directory "../../testsuite";;
+*)
+#directory "../camlp5/testsuite";;
 #load "testutil.cmo";;
 #load "testutil2.cmo";;
 
@@ -124,8 +124,13 @@ let pp_lexbuf lb =
 
 print_string "================ START ================\n";; flush stdout ;;
 
+#require "pa_ppx.runtime";;
+
 #load "clexer.cmo";;
 #load "pb0.cmo";;
+(*
+#trace Clexer.next_token;;
+*)
 
 (*
 ;;; Local Variables: ***

@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+message AllBasicTypes {
+  required double    field01 =  1;
+  required float     field02 =  2;
+  required int32     field03 =  3;
+  required int64     field04 =  4;
+  required uint32    field05 =  5;
+  required uint64    field06 =  6;
+  required sint32    field07 =  7;
+  required sint64    field08 =  8;
+  required fixed32   field09 =  9;
+  required fixed64   field10 = 10;
+  required sfixed32   field11 =  11;
+  required sfixed64   field12 = 12;
+  required bool      field13 = 13;
+  required string    field14 = 14;
+
+  repeated double    repeated01 = 21;
+  repeated float     repeated02 = 22;
+  repeated int32     repeated03 = 23;
+  repeated int64     repeated04 = 24;
+  repeated uint32    repeated05 = 25;
+  repeated uint64    repeated06 = 26;
+  repeated sint32    repeated07 = 27;
+  repeated sint64    repeated08 = 28;
+  repeated fixed32   repeated09 = 29;
+  repeated fixed64   repeated10 = 30;
+  repeated sfixed32   repeated11 = 31;
+  repeated sfixed64   repeated12 = 32;
+  repeated bool      repeated13 = 33;
+  repeated string    repeated14 = 34;
+
+  required google.protobuf.Int32Value int32_wrapped_value = 36;
+  required google.protobuf.Int32Value int32_wrapped_none = 37;
+  required google.protobuf.Int64Value int64_wrapped_value = 38;
+  required google.protobuf.Int64Value int64_wrapped_none = 39;
+  required google.protobuf.FloatValue float_wrapped_value = 40;
+  required google.protobuf.FloatValue float_wrapped_none = 41;
+  required google.protobuf.DoubleValue double_wrapped_value = 42;
+  required google.protobuf.DoubleValue double_wrapped_none = 43;
+  required google.protobuf.StringValue string_wrapped_value = 44;
+  required google.protobuf.StringValue string_wrapped_none = 45;
+  required google.protobuf.BoolValue bool_wrapped_value = 46;
+  required google.protobuf.BoolValue bool_wrapped_none = 47;
+
+  repeated string    empty = 48;
+}
+
+message SmallMessage {
+  required string sm_string = 1;
+}
+
+enum Enum {
+  VALUE0 = 0;
+  Value1 = 1;
+  Value_Two = 2;
+}
+
+message SingleOneOf {
+  oneof t {
+    string string_value = 1;
+    int32  int_value = 2;
+    Enum   enum_value = 3;
+    SmallMessage small_message = 4;
+    SingleOneOf recursive_value = 5;
+  }
+}
+
+message Test {
+  required AllBasicTypes all_basic_types = 1;
+  required Enum test_enum0 = 2;
+  required Enum test_enum1 = 3;
+  required Enum test_enum2 = 4;
+  required SingleOneOf single_one_of_string = 5;
+  required SingleOneOf single_one_of_int  = 6;
+  required SingleOneOf single_one_of_enum = 7;
+  required SingleOneOf single_one_of_small_message = 8;
+  required SingleOneOf single_one_of_recursive = 9;
+  repeated SmallMessage repeated_small_message = 10;
+  repeated SmallMessage repeated_small_message_empty = 11;
+}

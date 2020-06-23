@@ -1,0 +1,6 @@
+clexer.cmo :
+clexer.cmx :
+pb0.cmo : \
+    clexer.cmo
+pb0.cmx : \
+    clexer.cmx
