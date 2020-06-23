@@ -29,7 +29,6 @@ clexer.cmx: clexer.ml
 	$(OCAMLFIND) ocamlopt $(DEBUG) -package $(PACKAGES) -syntax camlp5r -c $<
 
 test: pb0
-	./test1 tests/testdata/foo.proto
 	./test1 tests/testdata/benchmark/benchmark.proto
 	./test1 tests/testdata/bs/bs_unittest.proto
 	./test1 tests/testdata/google_unittest/unittest_import.proto

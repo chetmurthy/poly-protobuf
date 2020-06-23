@@ -45,7 +45,9 @@ type type_name_t = { root : bool ; fid : fullident_t } ;
 type type_t = [ DOUBLE | FLOAT | INT32 | INT64 | UINT32 | UINT64
       | SINT32 | SINT64 | FIXED32 | FIXED64 | SFIXED32 | SFIXED64
       | BOOL | STRING | BYTES | NAMED of type_name_t ] ;
-type message_field_t = { mf_label : label_t ; mf_typ : type_t ; mf_name : string ; mf_num : int ; mf_options : list (option_name_t * constant_t) } ;
+type field_t = { f_typ : type_t ; f_name : string ; f_num : int ; f_options : list (option_name_t * constant_t) } ;
+
+type message_field_t = { mf_label : label_t ; it : field_t } ;
 
 type int_or_max = [ MAX | NUM of int ] ;
 type range_t = (int * option int_or_max) ;
@@ -64,9 +66,8 @@ and message_member_t = [
 | MM_ENUM of Ploc.t and string and list enum_member_t
 | MM_EXTEND of Ploc.t and type_name_t and list extend_member_t
 ]
-and oneof_field_t = { of_type : type_t ; of_name : string ; of_num : int ; of_options : list (option_name_t * constant_t) }
 and oneof_member_t = [
-  OM_FIELD of Ploc.t and oneof_field_t
+  OM_FIELD of Ploc.t and field_t
 | OM_OPTION of Ploc.t and (option_name_t * constant_t)
 | OM_EMPTY of Ploc.t
 ]
@@ -183,7 +184,7 @@ EXTEND
   [ [ ";" -> OM_EMPTY loc
     | "option" ; b = option_binding ; ";" -> OM_OPTION loc b
     | ty = typ ; n = ident ; "=" ; num = int ; opts = options ; ";" ->
-      OM_FIELD loc {of_type = ty ; of_name = n ; of_num = num ; of_options = opts }
+      OM_FIELD loc {f_typ = ty ; f_name = n ; f_num = num ; f_options = opts }
   ] ] ;
   enum_member:
   [ [ ";" -> EM_EMPTY loc
@@ -196,14 +197,14 @@ EXTEND
     | l = label ; "group" ; gn = UIDENT ; "=" ; num = int ;  "{" ; body = LIST0 member ; "}" ->
       EX_GROUP loc { group_label=l; group_name = gn ; group_num = num ; group_body = body }
     | l = label ; t = typ ; n = ident ; "=" ; num = int ; opts = options ; ";" ->
-      EX_FIELD loc { mf_label=l; mf_typ=t; mf_name=n; mf_num=num; mf_options = opts }
+      EX_FIELD loc { mf_label=l; it={f_typ=t; f_name=n; f_num=num; f_options = opts } }
   ] ] ;
   member:
   [ [ ";" -> MM_EMPTY loc
     | "option" ; (n,c) = option_binding ; ";" ->
       MM_OPTION loc (n, c)
     | l = label ; t = typ ; n = ident ; "=" ; num = int ; opts = options ; ";" ->
-      MM_FIELD loc { mf_label=l; mf_typ=t; mf_name=n; mf_num=num; mf_options = opts }
+      MM_FIELD loc { mf_label=l; it={f_typ=t; f_name=n; f_num=num; f_options = opts } }
     | l = label ; "group" ; gn = UIDENT ; "=" ; num = int ;  "{" ; body = LIST0 member ; "}" ->
       MM_GROUP loc { group_label=l; group_name = gn ; group_num = num ; group_body = body }
     | "oneof" ; n = ident ; "{" ; l = LIST1 oneof_member ; "}" ->
@@ -426,7 +427,7 @@ EXTEND_PRINTER
     [ [ OM_EMPTY _ -> pprintf pc ";"
       | OM_OPTION _ (n, c) -> pprintf pc "option %p;" option_binding (n,c)
       | OM_FIELD _ f -> pprintf pc "%p %s = %d %p;"
-          typ f.of_type f.of_name f.of_num options f.of_options
+          typ f.f_typ f.f_name f.f_num options f.f_options
     ] ] ;
   pr_enum_member:
     [ [ EM_EMPTY _ -> pprintf pc ";"
@@ -439,9 +440,9 @@ EXTEND_PRINTER
       | EX_FIELD _ f ->
         pprintf pc "%s %p %s = %d%p;"
           (match f.mf_label with [ REQUIRED -> "required" | OPTIONAL -> "optional" | REPEATED -> "repeated"])
-          typ f.mf_typ
-          f.mf_name f.mf_num
-          options f.mf_options
+          typ f.it.f_typ
+          f.it.f_name f.it.f_num
+          options f.it.f_options
       | EX_GROUP _ g ->
         pprintf pc "%s group %s = %d @[<2>{\n%p\n}@]"
           (match g.group_label with [ REQUIRED -> "required" | OPTIONAL -> "optional" | REPEATED -> "repeated"])
@@ -454,9 +455,9 @@ EXTEND_PRINTER
       | MM_FIELD _ f ->
         pprintf pc "%s %p %s = %d%p;"
           (match f.mf_label with [ REQUIRED -> "required" | OPTIONAL -> "optional" | REPEATED -> "repeated"])
-          typ f.mf_typ
-          f.mf_name f.mf_num
-          options f.mf_options
+          typ f.it.f_typ
+          f.it.f_name f.it.f_num
+          options f.it.f_options
       | MM_GROUP _ g ->
         pprintf pc "%s group %s = %d @[<2>{\n%p\n}@]"
           (match g.group_label with [ REQUIRED -> "required" | OPTIONAL -> "optional" | REPEATED -> "repeated"])
